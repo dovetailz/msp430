@@ -2,9 +2,8 @@
 #define processr_h
 
 class Processor {
-    Processor();
-    ~Processor();
-
+  Processor();
+  ~Processor();
 };
 
 #endif
