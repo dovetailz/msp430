@@ -15,3 +15,5 @@ target_include_directories(MSP430 PUBLIC
 
 configure_file(msp430.h.in msp430.h)
 configure_file(.clang-format .clang-format)
+add_custom_target(format
+    COMMAND ../format.sh)
