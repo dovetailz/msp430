@@ -5,6 +5,6 @@ class Processor {
     Processor();
     ~Processor();
 
-}
+};
 
 #endif
