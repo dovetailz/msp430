@@ -1,0 +1,6 @@
+include_directories(${CMAKE_SOURCE_DIR}/test/memory/include)
+add_executable(memory_test memory_test.cpp)
+target_link_libraries(memory_test PUBLIC gtest_main)
+target_link_libraries(memory_test PUBLIC memory)
+add_test(memory_test_exe memory_test)
+enable_testing()

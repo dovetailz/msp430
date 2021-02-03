@@ -1,5 +1,9 @@
 #include "memory.h"
 
+Memory::Memory() {}
+
+Memory::~Memory() {}
+
 uint8_t Memory::GetUint8(MemAddr addr) { return mem[addr]; }
 
 uint16_t Memory::GetUint16(MemAddr addr) {

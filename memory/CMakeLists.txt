@@ -1,1 +1,1 @@
-add_library(memory memory.cpp)
+add_subdirectory(src)

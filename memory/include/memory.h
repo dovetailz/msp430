@@ -6,10 +6,9 @@
 typedef uint16_t MemAddr;
 
 class Memory {
+ public:
   Memory();
   ~Memory();
-
- public:
   uint8_t GetUint8(MemAddr addr);
   uint16_t GetUint16(MemAddr addr);
 
