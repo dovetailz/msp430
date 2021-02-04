@@ -15,7 +15,6 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build .
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
 
 add_subdirectory(test)
-
 add_subdirectory(processor)
 add_subdirectory(memory)
 configure_file(.clang-format .clang-format)

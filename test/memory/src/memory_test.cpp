@@ -1,7 +1,40 @@
 #include "memory_test.h"
 
 TEST_F(MemoryTest, GetUint8) {
+  for (uint32_t addr = 0; addr < Memory::MEM_SIZE; addr++) {
+    ASSERT_EQ(mem.GetUint8(addr), 0xFF)
+        << +mem.GetUint8(addr) << "not equal to 0xFF" << std::endl;
+  }
+}
 
-  std::cout<< mem.GetUint8(0) << std::endl;
-  EXPECT_EQ(0,1) << "Val: " << mem.GetUint8(0) << std::endl; 
+TEST_F(MemoryTest, GetUint16) {
+  for (uint32_t addr = 0; addr < Memory::MEM_SIZE; addr += 2) {
+    ASSERT_EQ(mem.GetUint16(addr), 0xFFFF)
+        << "Addr: 0x" << std::hex << addr << std::endl;
+  }
+}
+
+TEST_F(MemoryTest, SetUint8) {
+  MemAddr addr = 0x1234;
+  uint8_t val = 0xDE;
+
+  mem.SetUint8(addr, val);
+  ASSERT_EQ(mem.GetUint8(addr), val)
+      << "SetUint8 did not set properly" << std::endl;
+}
+
+TEST_F(MemoryTest, SetUint16) {
+  MemAddr addr = 0x4320;
+  uint16_t val = 0xDEAD;
+
+  mem.SetUint16(addr, val);
+  ASSERT_EQ(mem.GetUint16(addr), val)
+      << "SetUint16 did not set properly" << std::endl;
+}
+
+TEST_F(MemoryTest, SetUint16_NonAligned) {
+  MemAddr addr = 0x4321;
+  uint16_t val = 0xDEAD;
+
+  EXPECT_THROW(mem.SetUint16(addr, val), MemoryException);
 }
