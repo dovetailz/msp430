@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <iostream>
 
+#include "read_elf.h"
+
 Memory::Memory() {
   for (uint32_t addr = 0; addr < Memory::MEM_SIZE; addr++) {
     mem[addr] = 0xFF;
@@ -39,8 +41,10 @@ void Memory::CheckBounds(MemAddr addr) {
   throw MemoryException(error);
 }
 
-void Memory::LoadFile(MemAddr addr, std::string filepath) {
-  if (!std::filesystem::exists(filepath)) {
-    throw(MemoryException("File does not exist"));
+void Memory::LoadFile(std::string filepath) {
+  try {
+    ElfReader elf_reader(filepath);
+  } catch (ElfReaderException& e) {
+    std::cout << e.what() << std::endl;
   }
 }

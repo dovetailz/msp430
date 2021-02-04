@@ -38,3 +38,5 @@ TEST_F(MemoryTest, SetUint16_NonAligned) {
 
   EXPECT_THROW(mem.SetUint16(addr, val), MemoryException);
 }
+
+TEST_F(MemoryTest, ElfReader) { mem.LoadFile(DOCUMENT_PATH); }

@@ -17,6 +17,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build .
 add_subdirectory(test)
 add_subdirectory(processor)
 add_subdirectory(memory)
+add_subdirectory(tools)
 configure_file(.clang-format .clang-format)
 add_custom_target(format
     COMMAND ../format.sh)

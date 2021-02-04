@@ -16,7 +16,7 @@ class Memory {
   uint16_t GetUint16(MemAddr addr);
   void SetUint8(MemAddr addr, uint8_t val);
   void SetUint16(MemAddr addr, uint16_t val);
-  void LoadFile(MemAddr addr, std::string filepath);
+  void LoadFile(std::string filepath);
 
  private:
   uint8_t mem[MEM_SIZE];
