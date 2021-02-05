@@ -44,29 +44,50 @@ void Memory::CheckBounds(MemAddr addr) {
 
 void Memory::LoadFile(std::string filepath) {
   ElfReader elf_reader(filepath);
-  auto sections = elf_reader.GetSections();
-  if (!sections.has_value()) {
-    throw(ElfReaderException("No sections found in file"));
+  auto segments = elf_reader.GetLoadableSegments();
+  if (!segments.has_value()) {
+    throw(ElfReaderException("No loadable segments found in file"));
   }
-  for (auto section : sections.value()) {
-    std::cout << "Loading " << section.first << " into memory" << std::endl;
+  for (auto segment : segments.value()) {
+    std::cout << "Loading segment into memory" << std::endl;
 
     std::ifstream elf_file(filepath, std::ios::binary | std::ios::ate);
     std::streamsize size = elf_file.tellg();
-    auto mem_addr = section.second.sh_offset;
-    auto mem_size = section.second.sh_size;
+    auto mem_addr = segment.p_offset;
+    auto mem_size = segment.p_memsz;
     elf_file.seekg(mem_addr, std::ios::beg);
     char* buffer = new char[mem_size];
     elf_file.read(buffer, mem_size);
     for (int x = 0; x < mem_size; x++) {
-      mem[x + section.second.sh_addr] = buffer[x];
+      mem[x + segment.p_paddr] = buffer[x];
     }
   }
-  //  for(int x = 0; x < MEM_SIZE; x+=2) {
-  //   std::cout<<"0x"<<std::hex<<std::setfill('0')<<std::setw(4)<<std::right<<x<<
-  //   ": ";
-  //   std::cout<<std::hex<<std::setfill('0')<<std::setw(2)<<std::right<<+mem[x];
-  //   std::cout<<std::hex<<std::setfill('0')<<std::setw(2)<<std::right<<+mem[x+1]
-  //   << std::endl;;
-  // }
+}
+
+void Memory::DisplayMem() {
+  for (int x = 0; x < MEM_SIZE; x += 16) {
+    std::cout << std::hex << std::setfill('0') << std::setw(8) << std::right
+              << x << "  ";
+    std::cout << std::hex << std::setfill('0') << std::setw(2) << std::right
+              << +mem[x];
+    for (int z = 1; z < 16; z++) {
+      if (z == 8) {
+        std::cout << " ";
+      }
+      std::cout << " " << std::hex << std::setfill('0') << std::setw(2)
+                << std::right << +mem[x + z];
+    }
+
+    std::cout << "  |";
+    for (int z = 0; z < 16; z++) {
+      if (isprint(mem[x + z])) {
+        std::cout << static_cast<char>(mem[x + z]);
+      } else {
+        std::cout << ".";
+      }
+    }
+    std::cout << "|";
+    std::cout << std::endl;
+    ;
+  }
 }

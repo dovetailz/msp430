@@ -27,7 +27,7 @@ ElfReader::ElfReader(std::string filepath) {
     }
   }
 
-  // Get Sections
+  // Get Sections headers
   for (Elf32_Half section = 0; section < header.e_shnum; section++) {
     elf_file.seekg(header.e_shoff + (header.e_shentsize * section),
                    std::ios::beg);
@@ -50,6 +50,14 @@ ElfReader::ElfReader(std::string filepath) {
     }
     m_section_map.emplace(name, sec);
   }
+
+  // Get Program Headers
+  for (Elf32_Half section = 0; section < header.e_phnum; section++) {
+    elf_file.seekg(header.e_phoff + (header.e_phentsize * section),
+                   std::ios::beg);
+    elf_file.read((char*)&program_header, sizeof(Elf32_Phdr));
+    loadable_headers.push_back(program_header);
+  }
 }
 
 ElfReader::~ElfReader() {}
@@ -57,6 +65,13 @@ ElfReader::~ElfReader() {}
 std::optional<section_map> ElfReader::GetSections() {
   if (m_section_map.size() > 0) {
     return m_section_map;
+  }
+  return {};
+}
+
+std::optional<std::vector<Elf32_Phdr>> ElfReader::GetLoadableSegments() {
+  if (loadable_headers.size() > 0) {
+    return loadable_headers;
   }
   return {};
 }
