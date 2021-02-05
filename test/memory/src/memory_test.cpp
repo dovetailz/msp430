@@ -39,4 +39,8 @@ TEST_F(MemoryTest, SetUint16_NonAligned) {
   EXPECT_THROW(mem.SetUint16(addr, val), MemoryException);
 }
 
-TEST_F(MemoryTest, ElfReader) { mem.LoadFile(DOCUMENT_PATH); }
+TEST_F(MemoryTest, ElfReader) {
+  mem.LoadFile(DOCUMENT_PATH);
+  auto val = mem.GetUint16(0xfc10);
+  EXPECT_EQ(val, 0xd2d3) << "Memory not loaded properly";
+}

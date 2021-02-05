@@ -2,8 +2,11 @@
 #define processr_h
 
 class Processor {
+ public:
   Processor();
   ~Processor();
+
+ private:
 };
 
 #endif
