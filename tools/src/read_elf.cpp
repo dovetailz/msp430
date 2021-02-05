@@ -48,8 +48,15 @@ ElfReader::ElfReader(std::string filepath) {
       }
       name += ch;
     }
-    section_map.emplace(name, sec);
+    m_section_map.emplace(name, sec);
   }
 }
 
 ElfReader::~ElfReader() {}
+
+std::optional<section_map> ElfReader::GetSections() {
+  if (m_section_map.size() > 0) {
+    return m_section_map;
+  }
+  return {};
+}

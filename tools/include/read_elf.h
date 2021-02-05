@@ -9,11 +9,15 @@
 #include <string>
 #include <vector>
 
+typedef std::map<std::string, Elf32_Shdr> section_map;
+
 class ElfReader {
  public:
   ElfReader();
   ElfReader(std::string filepath);
   ~ElfReader();
+
+  std::optional<section_map> GetSections();
 
   Elf32_Ehdr header;
   Elf32_Shdr section_header;
@@ -23,7 +27,7 @@ class ElfReader {
  private:
   std::vector<Elf32_Shdr> sections;
   std::vector<Elf32_Sym> symbols;
-  std::map<std::string, Elf32_Shdr> section_map;
+  section_map m_section_map;
   uint8_t magic[4]{0x7f, 0x45, 0x4c, 0x46};
 };
 

@@ -38,3 +38,14 @@ TEST_F(ReadElfTest, Magic_Invalid) {
     EXPECT_STREQ(e.what(), "Invalid magic bytes") << "Invalid throw string";
   }
 }
+
+TEST_F(ReadElfTest, GetSections_GoodFile) {
+  auto sections = reader.GetSections();
+  ASSERT_TRUE(sections.has_value()) << "File did not have any sections";
+  ASSERT_EQ(sections.value().size(), 22) << "Incorrect amount of sections";
+
+  for (auto section : sections.value()) {
+    EXPECT_TRUE(std::find(section_name.begin(), section_name.end(),
+                          section.first) != section_name.end());
+  }
+}

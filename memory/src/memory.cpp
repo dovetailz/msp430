@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include "read_elf.h"
@@ -42,9 +43,30 @@ void Memory::CheckBounds(MemAddr addr) {
 }
 
 void Memory::LoadFile(std::string filepath) {
-  try {
-    ElfReader elf_reader(filepath);
-  } catch (ElfReaderException& e) {
-    std::cout << e.what() << std::endl;
+  ElfReader elf_reader(filepath);
+  auto sections = elf_reader.GetSections();
+  if (!sections.has_value()) {
+    throw(ElfReaderException("No sections found in file"));
   }
+  for (auto section : sections.value()) {
+    std::cout << "Loading " << section.first << " into memory" << std::endl;
+
+    std::ifstream elf_file(filepath, std::ios::binary | std::ios::ate);
+    std::streamsize size = elf_file.tellg();
+    auto mem_addr = section.second.sh_offset;
+    auto mem_size = section.second.sh_size;
+    elf_file.seekg(mem_addr, std::ios::beg);
+    char* buffer = new char[mem_size];
+    elf_file.read(buffer, mem_size);
+    for (int x = 0; x < mem_size; x++) {
+      mem[x + section.second.sh_addr] = buffer[x];
+    }
+  }
+  //  for(int x = 0; x < MEM_SIZE; x+=2) {
+  //   std::cout<<"0x"<<std::hex<<std::setfill('0')<<std::setw(4)<<std::right<<x<<
+  //   ": ";
+  //   std::cout<<std::hex<<std::setfill('0')<<std::setw(2)<<std::right<<+mem[x];
+  //   std::cout<<std::hex<<std::setfill('0')<<std::setw(2)<<std::right<<+mem[x+1]
+  //   << std::endl;;
+  // }
 }
