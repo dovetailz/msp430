@@ -14,11 +14,41 @@ ElfReader::ElfReader(std::string filepath) {
   std::streamsize size = elf_file.tellg();
   elf_file.seekg(0, std::ios::beg);
 
-  Elf32_Ehdr header;
-  if (elf_file.read((char*)&header, sizeof(Elf32_Ehdr))) {
-    for (auto letter : header.e_ident) {
-      std::cout << letter;
+  if (!elf_file.read((char*)&header, sizeof(Elf32_Ehdr))) {
+    elf_file.close();
+    throw(ElfReaderException("Could not read file"));
+  }
+
+  // Check Magic Bytes
+  for (int x = 0; x < 4; x++) {
+    if (header.e_ident[x] != magic[x]) {
+      elf_file.close();
+      throw(ElfReaderException("Invalid magic bytes"));
     }
+  }
+
+  // Get Sections
+  for (Elf32_Half section = 0; section < header.e_shnum; section++) {
+    elf_file.seekg(header.e_shoff + (header.e_shentsize * section),
+                   std::ios::beg);
+    elf_file.read((char*)&section_header, sizeof(Elf32_Shdr));
+    sections.push_back(section_header);
+  }
+
+  // Add to section map
+  for (auto sec : sections) {
+    elf_file.seekg(sections.at(header.e_shstrndx).sh_offset + sec.sh_name,
+                   std::ios::beg);
+    std::string name = "";
+    char ch;
+    while (true) {
+      ch = elf_file.get();
+      if (ch == '\0') {
+        break;
+      }
+      name += ch;
+    }
+    section_map.emplace(name, sec);
   }
 }
 

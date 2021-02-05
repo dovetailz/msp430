@@ -5,13 +5,9 @@
 
 #include <filesystem>
 #include <map>
+#include <optional>
 #include <string>
-
-struct Section {
-  uint16_t addr;
-  uint16_t offset;
-  uint16_t size;
-};
+#include <vector>
 
 class ElfReader {
  public:
@@ -19,8 +15,16 @@ class ElfReader {
   ElfReader(std::string filepath);
   ~ElfReader();
 
+  Elf32_Ehdr header;
+  Elf32_Shdr section_header;
+  std::optional<Elf32_Shdr> symbol_section;
+  Elf32_Sym symbol;
+
  private:
-  std::map<std::string, Section> section_map;
+  std::vector<Elf32_Shdr> sections;
+  std::vector<Elf32_Sym> symbols;
+  std::map<std::string, Elf32_Shdr> section_map;
+  uint8_t magic[4]{0x7f, 0x45, 0x4c, 0x46};
 };
 
 class ElfReaderException : public std::exception {
