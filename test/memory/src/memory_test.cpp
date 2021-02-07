@@ -2,14 +2,14 @@
 
 TEST_F(MemoryTest, GetUint8) {
   for (uint32_t addr = 0; addr < Memory::MEM_SIZE; addr++) {
-    ASSERT_EQ(mem.GetUint8(addr), 0xFF)
-        << +mem.GetUint8(addr) << "not equal to 0xFF" << std::endl;
+    ASSERT_EQ(mem.GetUint8(addr), 0x00)
+        << +mem.GetUint8(addr) << "not equal to 0x00" << std::endl;
   }
 }
 
 TEST_F(MemoryTest, GetUint16) {
   for (uint32_t addr = 0; addr < Memory::MEM_SIZE; addr += 2) {
-    ASSERT_EQ(mem.GetUint16(addr), 0xFFFF)
+    ASSERT_EQ(mem.GetUint16(addr), 0x0000)
         << "Addr: 0x" << std::hex << addr << std::endl;
   }
 }
@@ -27,7 +27,7 @@ TEST_F(MemoryTest, SetUint16) {
   MemAddr addr = 0x4320;
   uint16_t val = 0xDEAD;
 
-  mem.SetUint16(addr, val);
+  mem.SetUint16(addr, __bswap_16(val));
   ASSERT_EQ(mem.GetUint16(addr), val)
       << "SetUint16 did not set properly" << std::endl;
 }
@@ -42,5 +42,5 @@ TEST_F(MemoryTest, SetUint16_NonAligned) {
 TEST_F(MemoryTest, ElfReader) {
   mem.LoadFile(DOCUMENT_PATH);
   auto val = mem.GetUint16(0xfc10);
-  EXPECT_EQ(val, 0xd2d3) << "Memory not loaded properly";
+  EXPECT_EQ(val, 0xd3d2) << "Memory not loaded properly";
 }

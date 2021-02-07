@@ -1,5 +1,7 @@
 #include "memory.h"
 
+#include <byteswap.h>
+
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -8,9 +10,9 @@
 #include "read_elf.h"
 
 Memory::Memory() {
-  for (uint32_t addr = 0; addr < Memory::MEM_SIZE; addr++) {
-    mem[addr] = 0xFF;
-  }
+  // for (uint32_t addr = 0; addr < Memory::MEM_SIZE; addr++) {
+  //   mem[addr] = 0xFF;
+  // }
 }
 
 Memory::~Memory() {}
@@ -20,7 +22,7 @@ uint8_t Memory::GetUint8(MemAddr addr) { return mem[addr]; }
 uint16_t Memory::GetUint16(MemAddr addr) {
   uint16_t val = static_cast<uint16_t>(mem[addr]) << 8;
   val = val | static_cast<uint16_t>(mem[addr + 1]);
-  return val;
+  return __bswap_16(val);
 }
 
 void Memory::SetUint8(MemAddr addr, uint8_t val) { mem[addr] = val; }
