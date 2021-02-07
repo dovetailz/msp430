@@ -2,7 +2,10 @@
 #define processr_h
 
 #include <cstdint>
+#include <iostream>
 #include <map>
+
+#include "memory.h"
 
 class Processor {
   typedef void (Processor::*OP)();
@@ -11,10 +14,14 @@ class Processor {
   Processor();
   ~Processor();
 
- private:
+  void SetMemory(Memory* mem);
+  void Step();
+  uint16_t FetchInstruction(uint16_t PC);
+
+  Memory *mem;
+
   uint16_t R0{};
   uint16_t R1{};
-  uint16_t R2{};
   union StatusRegister {
     struct {
       uint8_t : 7;
@@ -30,7 +37,8 @@ class Processor {
     };
     uint16_t val;
   };
-  StatusRegister R3{};
+  StatusRegister R2{};
+  uint16_t R3{};
   uint16_t R4{};
   uint16_t R5{};
   uint16_t R6{};
@@ -46,40 +54,44 @@ class Processor {
 
   uint16_t* PC;
   uint16_t* SP;
-  uint16_t* SR;
+  StatusRegister* SR;
   uint16_t* GC1;
   uint16_t* GC2;
 
-  void op_add();
-  void op_addc();
-  void op_and();
-  void op_bic();
-  void op_bis();
-  void op_bit();
-  void op_call();
-  void op_cmp();
-  void op_dadd();
-  void op_jc_jhs();
-  void op_jeq_jz();
-  void op_jge();
-  void op_jle();
-  void op_jmp();
-  void op_jn();
-  void op_jnc_jlo();
-  void op_jne_jnz();
-  void op_mov();
-  void op_push();
-  void op_push_b();
-  void op_reti();
-  void op_rra();
-  void op_rra_b();
-  void op_rrc();
-  void op_rrc_b();
-  void op_sub();
-  void op_subc();
-  void op_swpb();
-  void op_sxt();
-  void op_xor();
+  // op codes
+  void op_add() {};
+  void op_addc() {};
+  void op_and() {};
+  void op_bic() {};
+  void op_bis() {};
+  void op_bit() {};
+  void op_call() {};
+  void op_cmp() {};
+  void op_dadd() {};
+  void op_jc_jhs() {};
+  void op_jeq_jz() {};
+  void op_jge() {};
+  void op_jle() {};
+  void op_jmp() {};
+  void op_jn() {};
+  void op_jnc_jlo() {};
+  void op_jne_jnz() {};
+  void op_mov() {std::cout << "hi"<<std::endl;};
+  void op_push() {};
+  void op_push_b() {};
+  void op_reti() {};
+  void op_rra() {};
+  void op_rra_b() {};
+  void op_rrc() {};
+  void op_rrc_b() {};
+  void op_sub() {};
+  void op_subc() {};
+  void op_swpb() {};
+  void op_sxt() {};
+  void op_xor() {};
+
+  // interrupts
+  void int_reset();
 
   enum class ADDRESSING_MODE {
     REGISTER,
@@ -123,6 +135,18 @@ class Processor {
   };
 
   std::map<uint16_t, OP> op_map;
+
+  static constexpr uint16_t RESET_VECTOR = 0xFFFE;
+  static constexpr uint16_t PERIPH_MAX = 0x01FF;
+};
+
+class ProcessorException : public std::exception {
+  std::string _msg;
+
+ public:
+  ProcessorException(const std::string& msg) : _msg(msg) {}
+
+  virtual const char* what() const noexcept override { return _msg.c_str(); }
 };
 
 #endif

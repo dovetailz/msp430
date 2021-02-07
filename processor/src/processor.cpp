@@ -1,11 +1,12 @@
 #include "processor.h"
+#include <iostream>
 
-Processor::Processor() {
+Processor::Processor(){
   PC = &R0;
   SP = &R1;
   SR = &R2;
-  GC1 = &R2;
-  GC2 = &R3.val;
+  GC1 = &R2.val;
+  GC2 = &R3;
 
   op_map.emplace(0x1000, &Processor::op_rrc);
   op_map.emplace(0x1040, &Processor::op_rrc_b);
@@ -37,6 +38,41 @@ Processor::Processor() {
   op_map.emplace(0xD000, &Processor::op_bis);
   op_map.emplace(0xE000, &Processor::op_xor);
   op_map.emplace(0xF000, &Processor::op_and);
+}
+
+void Processor::SetMemory(Memory* mem_ptr) {
+  mem = mem_ptr;
+  int_reset();
+}
+
+void Processor::Step() {
+  auto instruction = FetchInstruction(*PC);
+  for(auto op_code : op_map) {
+    if(instruction & op_code.first) {
+      // Execute instruction
+      (this->*op_code.second)();
+      break;
+    }
+  }
+}
+
+uint16_t Processor::FetchInstruction(uint16_t PC) {
+  if(PC <= PERIPH_MAX) {
+    throw(ProcessorException("Tried to fetch instruction from peripheral address space"));
+  }
+  return(mem->GetUint16(PC));
+}
+
+void Processor::int_reset() {
+  // Configure RST/NMI pin
+  // Switch IO pins to input mode
+  // Initialize peripherals
+
+  // Set status register
+  SR->val = 0;
+
+  // Reset Program Counter
+  *PC = mem->GetUint16(RESET_VECTOR);
 }
 
 Processor::~Processor() {}
