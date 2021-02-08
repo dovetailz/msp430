@@ -9,7 +9,7 @@
 
 class ProcessorTest : public ::testing::Test {
  public:
-  ProcessorTest() {};
+  ProcessorTest(){};
   ~ProcessorTest(){};
 
   void SetUp();
