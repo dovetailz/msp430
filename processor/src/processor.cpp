@@ -26,36 +26,33 @@ Processor::Processor() {
   register_map.emplace(14, &R14);
   register_map.emplace(15, &R15);
 
-  op_map.emplace(0x1000, &Processor::op_rrc);
-  op_map.emplace(0x1040, &Processor::op_rrc_b);
-  op_map.emplace(0x1080, &Processor::op_swpb);
-  op_map.emplace(0x1100, &Processor::op_rra);
-  op_map.emplace(0x1140, &Processor::op_rra_b);
-  op_map.emplace(0x1180, &Processor::op_sxt);
-  op_map.emplace(0x1200, &Processor::op_push);
-  op_map.emplace(0x1240, &Processor::op_push_b);
-  op_map.emplace(0x1280, &Processor::op_call);
-  op_map.emplace(0x1300, &Processor::op_reti);
-  op_map.emplace(0x2000, &Processor::op_jne_jnz);
-  op_map.emplace(0x2400, &Processor::op_jeq_jz);
-  op_map.emplace(0x2800, &Processor::op_jnc_jlo);
-  op_map.emplace(0x2C00, &Processor::op_jc_jhs);
-  op_map.emplace(0x3000, &Processor::op_jn);
-  op_map.emplace(0x3400, &Processor::op_jge);
-  op_map.emplace(0x3800, &Processor::op_jle);
-  op_map.emplace(0x3C00, &Processor::op_jmp);
-  op_map.emplace(0x4000, &Processor::op_mov);
-  op_map.emplace(0x5000, &Processor::op_add);
-  op_map.emplace(0x6000, &Processor::op_addc);
-  op_map.emplace(0x7000, &Processor::op_subc);
-  op_map.emplace(0x8000, &Processor::op_sub);
-  op_map.emplace(0x9000, &Processor::op_cmp);
-  op_map.emplace(0xA000, &Processor::op_dadd);
-  op_map.emplace(0xB000, &Processor::op_bit);
-  op_map.emplace(0xC000, &Processor::op_bic);
-  op_map.emplace(0xD000, &Processor::op_bis);
-  op_map.emplace(0xE000, &Processor::op_xor);
-  op_map.emplace(0xF000, &Processor::op_and);
+  op_map.emplace("rrc", &Processor::op_rrc);
+  op_map.emplace("swpb", &Processor::op_swpb);
+  op_map.emplace("rra", &Processor::op_rra);
+  op_map.emplace("sxt", &Processor::op_sxt);
+  op_map.emplace("push", &Processor::op_push);
+  op_map.emplace("call", &Processor::op_call);
+  op_map.emplace("reti", &Processor::op_reti);
+  op_map.emplace("jne", &Processor::op_jne_jnz);
+  op_map.emplace("jeq", &Processor::op_jeq_jz);
+  op_map.emplace("jnc", &Processor::op_jnc_jlo);
+  op_map.emplace("jc", &Processor::op_jc_jhs);
+  op_map.emplace("jn", &Processor::op_jn);
+  op_map.emplace("jge", &Processor::op_jge);
+  op_map.emplace("jle", &Processor::op_jle);
+  op_map.emplace("jmp", &Processor::op_jmp);
+  op_map.emplace("mov", &Processor::op_mov);
+  op_map.emplace("add", &Processor::op_add);
+  op_map.emplace("addc", &Processor::op_addc);
+  op_map.emplace("subc", &Processor::op_subc);
+  op_map.emplace("sub", &Processor::op_sub);
+  op_map.emplace("cmp", &Processor::op_cmp);
+  op_map.emplace("dadd", &Processor::op_dadd);
+  op_map.emplace("bit", &Processor::op_bit);
+  op_map.emplace("bic", &Processor::op_bic);
+  op_map.emplace("bis", &Processor::op_bis);
+  op_map.emplace("xor", &Processor::op_xor);
+  op_map.emplace("and", &Processor::op_and);
 }
 
 void Processor::SetMemory(Memory* mem_ptr) {
@@ -69,59 +66,157 @@ bool CheckBits(uint16_t a, uint16_t b, uint16_t bit) {
   return (v1 & v2);
 }
 
+// Processor::OP Processor::GetOpCodeFunc() {
+//   for (auto opcode : op_map) {
+//     if (current_instruction & opcode.first) {
+//       if ((current_instruction >> 12) == 1) {
+//         if (!CheckBits(current_instruction, opcode.first, 12)) {
+//           continue;
+//         }
+//         if (!CheckBits(current_instruction, opcode.first, 8)) {
+//           continue;
+//         }
+//         if (!CheckBits(current_instruction, opcode.first, 4)) {
+//           continue;
+//         }
+
+//         auto val = current_instruction & 0xF000;
+//         if (opcode.first < (current_instruction & 0xF000)) {
+//           continue;
+//         }
+//         return opcode.second;
+//       } else if (((current_instruction >> 12) == 2) ||
+//                  ((current_instruction >> 12) == 3)) {
+//         if (!CheckBits(current_instruction, opcode.first, 12)) {
+//           continue;
+//         }
+//         if (!CheckBits(current_instruction, opcode.first, 8)) {
+//           continue;
+//         }
+
+//         auto val = current_instruction & 0xFF00;
+//         if (opcode.first < (current_instruction & 0xFF00)) {
+//           continue;
+//         }
+//         return opcode.second;
+//       }
+
+//       auto val = current_instruction & 0xF000;
+//       if (opcode.first < (current_instruction & 0xF000)) {
+//         continue;
+//       }
+//       return opcode.second;
+//     }
+//   }
+//   //std::cout << std::hex << "0x" << current_instruction << std::endl;
+//   throw(ProcessorException("Undefined Opcode"));
+// }
+
 Processor::OP Processor::GetOpCodeFunc() {
-  for (auto opcode : op_map) {
-    if (current_instruction & opcode.first) {
-      if ((current_instruction >> 12) == 1) {
-        if (!CheckBits(current_instruction, opcode.first, 12)) {
-          continue;
-        }
-        if (!CheckBits(current_instruction, opcode.first, 8)) {
-          continue;
-        }
-        if (!CheckBits(current_instruction, opcode.first, 4)) {
-          continue;
-        }
-
-        auto val = current_instruction & 0xF000;
-        if (opcode.first < (current_instruction & 0xF000)) {
-          continue;
-        }
-        return opcode.second;
-      } else if (((current_instruction >> 12) == 2) ||
-                 ((current_instruction >> 12) == 3)) {
-        if (!CheckBits(current_instruction, opcode.first, 12)) {
-          continue;
-        }
-        if (!CheckBits(current_instruction, opcode.first, 8)) {
-          continue;
-        }
-
-        auto val = current_instruction & 0xFF00;
-        if (opcode.first < (current_instruction & 0xFF00)) {
-          continue;
-        }
-        return opcode.second;
-      }
-
-      auto val = current_instruction & 0xF000;
-      if (opcode.first < (current_instruction & 0xF000)) {
-        continue;
-      }
-      return opcode.second;
+  auto opcode = static_cast<uint8_t>(current_instruction >> 12);
+  if(opcode == 0xF) {
+    return op_map["and"];
+  }
+  if(opcode == 0xE) {
+    return op_map["xor"];
+  }
+  if(opcode == 0xD) {
+    return op_map["bis"];
+  }
+  if(opcode == 0xC) {
+    return op_map["bic"];
+  }
+  if(opcode == 0xB) {
+    return op_map["bit"];
+  }
+  if(opcode == 0xA) {
+    return op_map["dadd"];
+  }
+  if(opcode == 0x9) {
+    return op_map["cmp"];
+  }
+  if(opcode == 0x8) {
+    return op_map["sub"];
+  }
+  if(opcode == 0x7) {
+    return op_map["subc"];
+  }
+  if(opcode == 0x6) {
+    return op_map["addc"];
+  }
+  if(opcode == 0x5) {
+    return op_map["add"];
+  }
+  if(opcode == 0x4) {
+    return op_map["mov"];
+  }
+  if(opcode == 0x3) {
+    auto opcode_sec = (current_instruction >> 8) & 0x0F;
+    if((opcode_sec & 0x8) && (opcode_sec & 0x4)) {
+      return op_map["jmp"];
+    }
+    if(opcode_sec & 0x8) {
+      return op_map["jle"];
+    }
+    if(opcode_sec & 0x4) {
+      return op_map["jge"];
+    }
+    if(opcode_sec & 0x0) {
+      return op_map["jn"];
     }
   }
-  std::cout << std::hex << "0x" << current_instruction << std::endl;
+  if(opcode == 0x2) {
+    auto opcode_sec = (current_instruction >> 8) & 0x0F;
+    if((opcode_sec & 0x8) && (opcode_sec & 0x4)) {
+      return op_map["jc"];
+    }
+    if(opcode_sec & 0x8) {
+      return op_map["jnc"];
+    }
+    if(opcode_sec & 0x4) {
+      return op_map["jeq"];
+    }
+    if(opcode_sec & 0x0) {
+      return op_map["jne"];
+    }
+  }
+  if(opcode == 0x1) {
+    auto val = current_instruction & 0x0FFF;
+    if(val >= 0x300) {
+      return op_map["reti"];
+    }
+    if(val >= 0x280) {
+      return op_map["call"];
+    }
+    if(val >=0x200) {
+      return op_map["push"];
+    }
+    if(val >= 0x180) {
+      return op_map["sxt"];
+    }
+    if(val >= 0x100) {
+      return op_map["rra"];
+    }
+    if(val >= 0x080) {
+      return op_map["swpb"];
+    }
+    if(val >= 0x0) {
+      return op_map["rrc"];
+    }
+  }
+  if(opcode == 0x0) {
+    throw(ProcessorException("Undefined Opcode"));
+  }
   throw(ProcessorException("Undefined Opcode"));
 }
 
 void Processor::Step() {
   current_instruction = FetchInstruction(*PC);
-  std::cout << "PC: 0x" << std::hex << *PC << " : 0x" << current_instruction
-            << std::endl;
+  // //std::cout << "PC: 0x" << std::hex << *PC << " : 0x" << current_instruction
+  //           << std::endl;
   (this->*GetOpCodeFunc())();
   // for(auto reg : register_map) {
-  //   std::cout << reg.first << ": " << *reg.second<<std::endl;
+  //   //std::cout << reg.first << ": " << *reg.second<<std::endl;
   // }
   // mem->DisplayMem();
   *PC += 2;
@@ -308,13 +403,96 @@ std::string Processor::GetModeString(ADDRESSING_MODE addr) {
 
 Processor::~Processor() {}
 
-void Processor::op_add() { std::cout << "ADD" << std::endl; };
+void Processor::op_add() { 
+  //std::cout << "ADD" << std::endl;
+  current_format = FORMAT::FORMAT1;
+  auto instruction = Format1();
+  instruction.val = current_instruction;
+  uint16_t* src;
+  uint16_t* dst;
+  int16_t val;
+  int32_t carry;
+  bool store_mem = false;
+
+  auto byte = (instruction.byte_word == 1) ? true : false;
+  auto next = GetAsAd();
+
+  src = &next.first;
+  dst = &next.second;
+
+  if (next.first == 0) {
+    src = register_map[instruction.s_reg];
+  }
+
+  if (next.second == 0) {
+    dst = register_map[instruction.d_reg];
+  } else {
+    store_mem = true;
+  }
+
+  SR->carry = 0;
+  SR->negative = 0;
+  SR->overflow = 0;
+  SR->zero = 0;
+
+  if(byte) {
+    auto source = static_cast<int8_t>(*src);
+    auto dest = static_cast<int8_t>(*dst);
+
+    val = dest + source;
+    carry = dest + source;
+    
+    if((dest > 0) && (source > 0) && (val < 0)) {
+      SR->overflow = 0;
+    } else if ((dest < 0) && (source < 0) && (val > 0)) {
+      SR->overflow = 0;
+    }
+
+    if(carry > 256) { 
+      SR->carry = 1;
+    }
+
+    if(store_mem) {
+      mem->SetUint8(*dst,val);
+    } else {
+      *dst = val;
+    }
+  } else {
+    auto source = static_cast<int16_t>(*src);
+    auto dest = static_cast<int16_t>(*dst);
+
+    val = dest + source;
+    carry = dest + source;
+
+    if((dest > 0) && (source > 0) && (val < 0)) {
+      SR->overflow = 0;
+    } else if ((dest < 0) && (source < 0) && (val > 0)) {
+      SR->overflow = 0;
+    }
+
+    if(carry > 65536) { 
+      SR->carry = 1;
+    }
+
+    if(store_mem) {
+      mem->SetUint16(*dst,val);
+    } else {
+      *dst = val;
+    }
+  }
+
+  if(val < 0) {
+    SR->negative = 1;
+  } else if(val == 0) {
+    SR->zero = 1;
+  } 
+};
 void Processor::op_addc(){};
 void Processor::op_and(){};
 void Processor::op_bic(){};
 
 void Processor::op_bis() {
-  std::cout << "BIT SET" << std::endl;
+  //std::cout << "BIT SET" << std::endl;
   current_format = FORMAT::FORMAT1;
   auto instruction = Format1();
   instruction.val = current_instruction;
@@ -360,7 +538,7 @@ void Processor::op_bis() {
 void Processor::op_bit(){};
 
 void Processor::op_call() {
-  std::cout << "CALL" << std::endl;
+  //std::cout << "CALL" << std::endl;
   current_format = FORMAT::FORMAT2;
   auto instruction = Format2();
   uint16_t* dst;
@@ -381,19 +559,143 @@ void Processor::op_call() {
   *PC = *dst;
 };
 
-void Processor::op_cmp(){};
+void Processor::op_cmp(){
+  //std::cout<<"CMP"<<std::endl;
+  current_format = FORMAT::FORMAT1;
+  auto instruction = Format1();
+  instruction.val = current_instruction;
+  uint16_t* src;
+  uint16_t* dst;
+  int16_t val;
+  int32_t carry;
+  bool store_mem = false;
+
+  auto byte = (instruction.byte_word == 1) ? true : false;
+  auto next = GetAsAd();
+
+  src = &next.first;
+  dst = &next.second;
+
+  if (next.first == 0) {
+    src = register_map[instruction.s_reg];
+  }
+
+  if (next.second == 0) {
+    dst = register_map[instruction.d_reg];
+  }
+
+  SR->carry = 0;
+  SR->negative = 0;
+  SR->overflow = 0;
+  SR->zero = 0;
+
+  if(byte) {
+    auto not_src = static_cast<uint8_t>(~*src);
+    not_src += 1;
+    auto val = static_cast<uint8_t>(*dst) + not_src;
+    auto sign = static_cast<int8_t>(val);
+    auto bit1 = *dst >> 7;
+    auto bit2 = not_src >> 7;
+    auto bit3 = val >> 7;
+
+    if(val == 0) {
+      SR->zero = 1;
+    } else if(sign < 0) {
+      SR->negative = 1;
+    } else if((bit1 == 1) && (bit2 == 1) && (bit3 == 0)) {
+      SR->overflow = 1;
+    } else if((bit1 == 0) && (bit2 == 0) && (bit3 == 1)) {
+      SR->overflow = 1;
+    }
+  } else {
+    auto not_src = static_cast<uint16_t>(~*src);
+    not_src += 1;
+    auto val = *dst + not_src;
+    //std::cout<<"0x"<<std::hex<<val<<std::endl;
+    auto sign = static_cast<int16_t>(val);
+    auto bit1 = *dst >> 15;
+    auto bit2 = not_src >> 15;
+    auto bit3 = val >> 15;
+
+    if(val == 0) {
+      SR->zero = 1;
+    } else if(sign < 0) {
+      SR->negative = 1;
+    } else if((bit1 == 1) && (bit2 == 1) && (bit3 == 0)) {
+      SR->overflow = 1;
+    } else if((bit1 == 0) && (bit2 == 0) && (bit3 == 1)) {
+      SR->overflow = 1;
+    }
+  }
+
+  // if(byte) {
+  //   auto source = static_cast<int8_t>(*src);
+  //   auto dest = static_cast<int8_t>(*dst);
+
+  //   val = dest - source;
+    
+  //   if((dest > 0) && ((!source + 1) > 0) && (val < 0)) {
+  //     SR->overflow = 1;
+  //   } else if ((dest < 0) && ((!source + 1) < 0) && (val > 0)) {
+  //     SR->overflow = 1;
+  //   }
+
+  //   if(carry > 256) { 
+  //     SR->carry = 1;
+  //   }
+  // } else {
+  //   auto source = static_cast<int16_t>(*src);
+  //   auto dest = static_cast<int16_t>(*dst);
+
+  //   val = dest - source;
+  //   carry = dest + !source + 1;
+
+  //   if((dest > 0) && ((!source + 1) > 0) && (val < 0)) {
+  //     SR->overflow = 1;
+  //   } else if ((dest < 0) && ((!source + 1) < 0) && (val > 0)) {
+  //     SR->overflow = 1;
+  //   }
+
+  //   if(carry > 65536) { 
+  //     SR->carry = 1;
+  //   }
+  // }
+
+  // if(val < 0) {
+  //   SR->negative = 1;
+  // } else if(val == 0) {
+  //   SR->zero = 1;
+  // }
+};
 void Processor::op_dadd(){};
 void Processor::op_jc_jhs(){};
 void Processor::op_jeq_jz(){};
-void Processor::op_jge(){};
+
+void Processor::op_jge(){
+  //std::cout<<"JGE"<<std::endl;
+  current_format = FORMAT::JUMP;
+  auto instruction = Jump();
+  instruction.val = current_instruction;
+  //std::cout<<+SR->negative<<" : "<<+SR->overflow<<std::endl;
+  if((SR->negative ^ SR->overflow) == 0) {
+    *PC = *PC + 2 * instruction.offset;
+  }
+};
+
 void Processor::op_jle(){};
-void Processor::op_jmp() { std::cout << "JUMP" << std::endl; };
+void Processor::op_jmp() { 
+  //std::cout << "JUMP" << std::endl; 
+  current_format = FORMAT::JUMP;
+  auto instruction = Jump();
+  instruction.val = current_instruction;
+  *PC = *PC + 2 * instruction.offset;
+};
 void Processor::op_jn(){};
 void Processor::op_jnc_jlo(){};
 void Processor::op_jne_jnz(){};
 
 void Processor::op_mov() {
-  std::cout << "MOVE" << std::endl;
+  //std::cout << "MOVE" << std::endl;
   current_format = FORMAT::FORMAT1;
   auto instruction = Format1();
   instruction.val = current_instruction;
@@ -443,4 +745,46 @@ void Processor::op_sub(){};
 void Processor::op_subc(){};
 void Processor::op_swpb(){};
 void Processor::op_sxt(){};
-void Processor::op_xor(){};
+void Processor::op_xor(){
+  //std::cout<<"XOR"<<std::endl;
+  current_format = FORMAT::FORMAT1;
+  auto instruction = Format1();
+  instruction.val = current_instruction;
+  uint16_t* src;
+  uint16_t* dst;
+  bool store_mem = false;
+
+  auto byte = (instruction.byte_word == 1) ? true : false;
+  auto next = GetAsAd();
+
+  src = &next.first;
+  dst = &next.second;
+
+  if (next.first == 0) {
+    src = register_map[instruction.s_reg];
+  }
+
+  if (next.second == 0) {
+    dst = register_map[instruction.d_reg];
+  } else {
+    store_mem = true;
+  }
+
+  if (byte) {
+    if (store_mem) {
+      auto val = *src ^ mem->GetUint16(*dst);
+      mem->SetUint8(*dst, static_cast<uint8_t>(val));
+    } else {
+      auto val = *src ^ *dst;
+      *dst = static_cast<uint8_t>(val);
+    }
+  } else {
+    if (store_mem) {
+      auto val = *src ^ mem->GetUint16(*dst);
+      mem->SetUint16(*dst, val);
+    } else {
+      auto val = *src ^ *dst;
+      *dst = val;
+    }
+  }
+};

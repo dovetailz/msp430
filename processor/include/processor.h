@@ -35,6 +35,7 @@ class Processor {
   ADDRESSING_MODE GetAddressingMode(REG reg, uint8_t ax);
   std::pair<uint16_t, uint16_t> GetAsAd();
   OP GetOpCodeFunc();
+  OP GetOp();
   std::string GetModeString(ADDRESSING_MODE addr);
   bool CheckConstantGenerator(uint16_t reg_num, uint16_t as, uint16_t* val);
 
@@ -139,14 +140,14 @@ class Processor {
 
   union Jump {
     struct {
-      int16_t offser : 10;
+      int16_t offset : 10;
       uint8_t c : 3;
       uint8_t op_code : 3;
     };
     uint16_t val;
   };
 
-  std::map<uint16_t, OP> op_map;
+  std::map<std::string, OP> op_map;
   std::map<uint16_t, uint16_t*> register_map{};
 
   static constexpr uint16_t RESET_VECTOR = 0xFFFE;
