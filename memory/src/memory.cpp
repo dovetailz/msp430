@@ -25,9 +25,10 @@ uint16_t Memory::GetUint16(MemAddr addr) {
   return __bswap_16(val);
 }
 
-void Memory::SetUint8(MemAddr addr, uint8_t val) { mem[addr] = val; 
-if(addr == 0x21) {
-    std::cout<<"P1OUT: 0x"<<std::hex<<+val<<std::endl;
+void Memory::SetUint8(MemAddr addr, uint8_t val) {
+  mem[addr] = val;
+  if (addr == 0x21) {
+    std::cout << "P1OUT: 0x" << std::hex << +val << std::endl;
   }
 }
 

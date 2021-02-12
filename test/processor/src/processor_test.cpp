@@ -16,27 +16,29 @@ TEST_F(ProcessorTest, Init_SR) {
 }
 
 TEST_F(ProcessorTest, Step) {
-    while(true) {
-        proc.Step();
-        // std::cout<<"R12: 0x"<<proc.R12<<std::endl;
-    }
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
-// //   proc.R12 = 0x4e20;
-//   proc.Step();
-//   proc.Step();
-//   proc.Step();
+  //   while (true) {
+  //     proc.Step();
+  //     // std::cout<<"R12: 0x"<<proc.R12<<std::endl;
+  //   }
+  proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
+  // //   proc.R12 = 0x4e20;
+  //   proc.Step();
+  //   proc.Step();
+  //   proc.Step();
 }
+
+TEST_F(ProcessorTest, Cycle) { proc.Cycle(); }

@@ -38,6 +38,7 @@ class Processor {
   OP GetOp();
   std::string GetModeString(ADDRESSING_MODE addr);
   bool CheckConstantGenerator(uint16_t reg_num, uint16_t as, uint16_t* val);
+  void Cycle();
 
   Memory* mem;
   FORMAT current_format{FORMAT::NONE};

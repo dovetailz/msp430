@@ -1,4 +1,5 @@
 add_subdirectory(memory)
 add_subdirectory(read_elf)
 add_subdirectory(processor)
+add_subdirectory(peripheral)
 enable_testing()
